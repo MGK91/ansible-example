@@ -1,0 +1,20 @@
+- name: Block/Rescue example
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install package with exception handling
+      block:
+        - name: Try to install non-existent package
+          apt:
+            name: "nonexistent-package"
+            state: present
+      rescue:
+        - name: Failover - install fallback package
+          apt:
+            name: curl
+            state: present
+      always:
+        - name: Print always executed message
+          debug:
+            msg: "This task always runs"
+

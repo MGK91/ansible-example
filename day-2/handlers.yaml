@@ -1,0 +1,16 @@
+- name: Handler example
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update nginx conf
+      copy:
+        src: nginx.conf
+        dest: /etc/nginx/nginx.conf
+      notify:
+        - restart nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted

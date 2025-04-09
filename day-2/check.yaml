@@ -1,0 +1,10 @@
+# playbook.yml
+- name: Dry run demo
+  hosts: web
+  become: true
+  tasks:
+    - name: Ensure nginx is installed
+      apt:
+        name: nginx
+        state: present
+

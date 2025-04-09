@@ -1,0 +1,21 @@
+- name: Install and configure web server
+  hosts: all
+  become: true
+  tasks:
+    - name: Install nginx
+      yum:
+        name: nginx
+        state: present
+      tags: install
+
+    - name: Copy index file
+      copy:
+        src: files/index.html
+        dest: /usr/share/nginx/html/index.html
+      tags: configure
+
+    - name: Start nginx
+      service:
+        name: nginx
+        state: started
+      tags: start

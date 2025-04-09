@@ -1,0 +1,17 @@
+---
+- name: Register example
+  hosts: web
+  gather_facts: no
+  tasks:
+    - name: Run a shell command
+      shell: "echo Hello, ansible"
+      register: echo_output
+    
+    - name: Print the previous comamnd output
+      debug:
+        var: echo_output
+
+    - name: Do some conditional task based on the previous output
+      debug:
+        msg: "Previous command is successfull"
+      when: "'Hello' in echo_output.stdout"

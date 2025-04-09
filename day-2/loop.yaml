@@ -1,0 +1,21 @@
+---
+- name: Loop example
+  hosts: web
+  become: true
+  tasks:
+    - name: Add users
+      user:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - webadmin
+        - appadmin
+        - tomcat
+    - name: Crate users with details
+      user:
+        name: "{{ item.name }}"
+        uid: "{{ item.uid }}"
+        shell: "{{ item.shell }}"
+      loop:
+        - { name: "alice", uid: 1005, shell: "/bin/bash" }
+        - { name: "bob", uid: 1008, shell: "/bin/zsh" }

@@ -1,0 +1,19 @@
+---
+- name: Run tasks only on Amazon Linux
+  hosts: web
+  become: true
+  gather_facts: yes
+  tasks:
+    - name: Show OS info
+      debug:
+         msg: "OS for {{ inventory_hostname }} is {{ ansible_distribution }}"
+    - name: Install httpd on Amazon Linux
+      yum:
+        name: httpd
+        state: present
+      when: ansible_distribution == "Amazon"
+    - name: Install apache on Ubuntu
+      apt:
+        name: apache
+        state: present
+      when: ansible_distribution == "Ubuntu"
