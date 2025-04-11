@@ -99,7 +99,8 @@ ansible-playbook mysql_playbook.yaml --extra-vars "@vault_vars.yaml" --ask-vault
 - Add handlers to restart MySQL if config changes
 - Include conditional checks so setup runs only once
 - Add Idempotent role-based structure for reusability
-
+- Have added original ansible.cfg , we can tweak fo performance like increasing forks value , pipelining to true , modify remote and local tmp , fine tune ssh-connection based optimization etc, and strategy o
+f ansible playbook execution linear /free etc
 ---
 
 ## 🧾 Author & Credits
