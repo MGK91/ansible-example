@@ -1,0 +1,19 @@
+- name: Variable Source Demo
+  hosts: web
+  gather_facts: false
+
+  vars:
+    play_var: "play_value"
+
+  tasks:
+    - name: Display task_var (task-level)
+      vars:
+        task_var: "task_value"
+      debug:
+        msg:
+          - "task_var: {{ task_var }}"
+          - "extra_var: {{ extra_var | default('NOT SET') }}"
+          - "play_var: {{ play_var }}"
+          - "host_var: {{ host_var }}"
+          - "group_var: {{ group_var }}"
+          - "inv_var: {{ inv_var }}"

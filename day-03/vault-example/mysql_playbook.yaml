@@ -1,0 +1,64 @@
+- name: Secure MySQL setup using Ansible Vault
+  hosts: db
+  become: true
+  vars_files:
+    - ./vault_vars.yml
+
+  tasks:
+    - name: debug vault variable
+      debug:
+        msg:
+          - "Mysql user: {{ mysql_user }}"
+          - "Root password: {{ mysql_root_password }}"
+      tags: debug
+
+    - name: Install MySQL/MariaDB server
+      dnf:
+        name: mariadb105-server
+        state: present
+        enablerepo: mariadb
+    - name: Copy MySQL config
+      template:
+        src: templates/my.cnf.j2
+        dest: /etc/my.cnf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enable mariadb
+      shell: systemctl enable mariadb
+
+    - name: Start mariadb
+      shell: systemctl start mariadb
+    
+    - name: Check if MySQL root password is already set
+      shell: |
+           mysql -u root -p'{{ mysql_root_password }}' -e "SELECT 1;"
+      register: root_password_check
+      ignore_errors: true
+      changed_when: false
+
+    
+    - name: Set MySQL root password (only if needed)
+      shell: |
+         mysql -u root <<EOF
+         ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';
+         FLUSH PRIVILEGES;
+         EOF
+      args:
+        executable: /bin/bash
+      when: root_password_check.rc != 0
+    - name: Create MySQL user with privileges
+      shell: |
+         mysql -u root -p'{{ mysql_root_password }}' -e "CREATE USER IF NOT EXISTS '{{ mysql_user }}'@'%' IDENTIFIED BY '{{ mysql_password }}'; GRANT ALL PRIVILEGES ON *.* TO '{{ mysql_user }}'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+      args:
+        executable: /bin/bash
+    - name: Create MySQL database
+      shell: |
+        mysql -u root -p'{{ mysql_root_password }}' -e "CREATE DATABASE IF NOT EXISTS {{ mysql_database }};"
+      args:
+        executable: /bin/bash
+
+
+
+

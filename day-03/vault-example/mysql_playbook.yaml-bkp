@@ -1,0 +1,59 @@
+- name: Secure MySQL setup using Ansible Vault
+  hosts: db
+  become: true
+  vars_files:
+    - ./vault_vars.yml
+
+  tasks:
+    - name: debug vault variable
+      debug:
+        msg:
+          - "Mysql user: {{ mysql_user }}"
+          - "Root password: {{ mysql_root_password }}"
+      tags: debug
+    - name: Install MySQL
+      dnf:
+        name: mariadb105-server
+        state: present
+        enablerepo: mariadb
+    - name: Copy MySQL config
+      template:
+        src: my.cnf.j2
+        dest: /etc/my.cnf.d/my.cnf
+        owner: root
+        group: root
+        mode: 0644
+    - name: Enable mariadb
+      shell: systemctl enable mariadb
+    - name: Start mariadb
+      shell: systemctl start mariadb
+
+    - name: Configure MySQL root password
+      mysql_user:
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        name: root
+        password: "{{ mysql_root_password }}"
+        host: localhost
+        state: present
+        update_password: always
+        check_implicit_admin: yes
+      ignore_errors: yes
+
+    - name: Create MySQL user
+      mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        priv: '*.*:ALL'
+        state: present
+        host: localhost
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
+    - name: Create MySQL database
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+
